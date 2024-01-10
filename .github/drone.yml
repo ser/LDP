@@ -27,8 +27,8 @@ steps:
   - rm -rf /LDP/PR
   - mkdir -p /LDP/PR/BUILD
   - rsync -av /LDP/en /LDP/PR
-  - ldptool --loglevel info --builddir /LDP/PR/BUILD --configfile .github/builder.ldptool.cfg --pubdir /builder/PR/en --list
-  - ionice -c 3 chrt --idle 0 ldptool --loglevel info --builddir /LDP/PR/BUILD --configfile .github/builder.ldptool.cfg --pubdir /builder/PR/en --publish
+  - ldptool --loglevel info --builddir /LDP/PR/BUILD --configfile .github/builder.ldptool.cfg --pubdir /LDP/PR/en --list
+  - ionice -c 3 chrt --idle 0 ldptool --loglevel info --builddir /LDP/PR/BUILD --configfile .github/builder.ldptool.cfg --pubdir /LDP/PR/en --publish
   - git rev-parse HEAD > /LDP/PR/last-commit-id.txt
   - date > /LDP/PR/build-date.txt
 
