@@ -32,7 +32,6 @@ steps:
   - git rev-parse HEAD > /LDP/PR/last-commit-id.txt
   - date > /LDP/PR/build-date.txt
 
-steps:
 - name: 🗃 Martin's builder - all revieved commits (full build)
   image: tldp/builder:latest
   volumes:
