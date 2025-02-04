@@ -6,23 +6,21 @@
 # this file is protected, DO NOT TAMPER without permission from LDP authorised maintainers!
 # contact us or create an issue before thinking about any changes.
 
-kind: pipeline
-type: docker
-name: 🗃 LDP Builder
+#kind: pipeline
+#type: docker
+#name: 🗃 LDP Builder
 
-workspace:
-  path: /builder/src
+#workspace:
+#  path: /builder/src
    
 steps:
 - name: 🗃 Martin's builder - Pull Request only (partial build)
   image: tldp/builder:latest
   volumes:
-  - name: LDP
-    path: /LDP
+    - /LDP:/LDP
   when:
-    event:
-      include:
-      - pull_request
+    - event: pull_request
+      branch: master
   commands:
   - ldptool --dump-cfg
   - rm -rf /LDP/PR
@@ -36,12 +34,9 @@ steps:
 - name: 🗃 Martin's builder - all revieved commits (full build)
   image: tldp/builder:latest
   volumes:
-  - name: LDP
-    path: /LDP
+    - /LDP:/LDP
   when:
-    event:
-      exclude:
-      - pull_request
+    - event: [ push, pull_request_closed, cron, manual ]
   commands:
   - ldptool --dump-cfg
   - mkdir -p /builder/src/BUILD
@@ -52,18 +47,9 @@ steps:
   - git rev-parse HEAD > /LDP/last-commit-id.txt
   - date > /LDP/build-date.txt
 
-volumes:
-- name: LDP
-  host:
-    path: /LDP
-
-trigger:
-  branch:
-  - master
-
 # the happy end.
----
-kind: signature
-hmac: fd968948e59d4b913d5de111f9d1af439186143a68e3ee7558e61287b804b974
-
-...
+#---
+#kind: signature
+#hmac: fd968948e59d4b913d5de111f9d1af439186143a68e3ee7558e61287b804b974
+#
+#...
