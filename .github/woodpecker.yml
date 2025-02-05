@@ -1,23 +1,18 @@
 ---
-# (C) Serge Victor 2020-2024, GPLv3 License
+# (C) Dr Serge Victor 2020-2025, GPLv3 License
+# (C) The Linux Documentation Project 2020-2025, GPLv3 License
 # 
 # recently build version of documents is available on permanent storage disk mounted on /LDP
 #
 # this file is protected, DO NOT TAMPER without permission from LDP authorised maintainers!
 # contact us or create an issue before thinking about any changes.
 
-#kind: pipeline
-#type: docker
-#name: 🗃 LDP Builder
-
-#workspace:
-#  path: /builder/src
-   
 steps:
+#####
+
 - name: 🗃 Martin's builder - Pull Request only (partial build)
   image: tldp/builder:latest
-  volumes:
-    - /LDP:/LDP
+  directory: /builder
   when:
     - event: pull_request
       branch: master
@@ -35,25 +30,34 @@ steps:
 - name: 🗃 Martin's builder - all revieved commits (full build)
   image: tldp/builder:latest
   directory: /builder
+  environment:
+    GITDIR: /woodpecker/src/github.com/ser/LDP
   volumes:
     - /LDP:/LDP
   when:
     - event: [ push, pull_request_closed, cron, manual ]
   commands:
-  - mkdir -p /builder/src/BUILD
-  - mkdir -p /builder/src/PUBDIR
+  - mkdir -p /builder/BUILD
+  - mkdir -p /builder/PUBDIR
   - whoami
   - pwd
   - ldptool --dump-cfg
-  - ldptool --loglevel info --builddir /builder/src/BUILD --configfile /woodpecker/src/github.com/ser/LDP/.github/builder.ldptool.cfg --pubdir /builder/src/PUBDIR --list
-  - ionice -c 3 chrt --idle 0 ldptool --loglevel info --builddir /builder/src/BUILD --configfile /woodpecker/src/github.com/ser/LDP/.github/builder.ldptool.cfg --pubdir /builder/src/PUBDIR --publish
-  - rsync -av --delete-after /builder/src/PUBDIR/ /LDP/en
+  - ldptool --loglevel info --builddir /builder/BUILD --configfile $GITDIR/.github/builder.ldptool.cfg --pubdir /builder/PUBDIR --list
+  - ionice -c 3 chrt --idle 0 ldptool --loglevel info --builddir /builder/BUILD --configfile $GITDIR/.github/builder.ldptool.cfg --pubdir /builder/PUBDIR --publish
+  - rsync -av --delete-after /builder/PUBDIR/ /LDP/en
+  - cd $GITDIR
   - git rev-parse HEAD > /LDP/last-commit-id.txt
   - date > /LDP/build-date.txt
 
+- name: ⇧ Upload full build
+  image: rclone/rclone
+  volumes:
+    - /LDP:/LDP
+  when:
+    - event: [ push, pull_request_closed, cron, manual ]
+  commands:
+  - echo "$RCLONE" > rclone.conf
+  - "rclone --config rclone.conf --verbose sync /LDP/ LDP:ldp/"
+  secrets: [ RCLONE ]
+
 # the happy end.
-#---
-#kind: signature
-#hmac: fd968948e59d4b913d5de111f9d1af439186143a68e3ee7558e61287b804b974
-#
-#...
