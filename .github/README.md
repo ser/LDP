@@ -1,6 +1,6 @@
 Builder | State
 :--- | ---:
-
+[![status-badge](https://builder-github.tldp.org/api/badges/2/status.svg)](https://builder-github.tldp.org/repos/2)
 ---
 
 ![LDP Logo](https://tldp.org/images/ldp.gif)
