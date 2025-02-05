@@ -34,12 +34,13 @@ steps:
 
 - name: 🗃 Martin's builder - all revieved commits (full build)
   image: tldp/builder:latest
+  directory: /builder
   volumes:
     - /LDP:/LDP
   when:
     - event: [ push, pull_request_closed, cron, manual ]
   commands:
-  - pwd
+  - whoami
   - ldptool --dump-cfg
   - mkdir -p /builder/src/BUILD
   - mkdir -p /builder/src/PUBDIR
