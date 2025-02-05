@@ -14,9 +14,6 @@ steps:
 
 - name: ⇣⇣ Download current full build
   image: rclone/rclone
-  environment:
-    RCLONE_CONF:
-      from_secret: RCLONE_CONF
   when:
     - event: pull_request
       branch: master
