@@ -12,15 +12,6 @@ steps:
 
 # PUBLIC ACCESS VIA PULL REQUESTS
 
-- name: ⇣⇣ Download current full build
-  image: rclone/rclone
-  when:
-    - event: pull_request
-      branch: master
-  commands:
-  - echo "$RCLONE" > rclone.conf
-  - "rclone --config rclone.conf --verbose sync LDP:ldp/en/ /LDP/PR/BUILD"
-
 - name: 🗃 Martin's builder - Pull Request only (partial build)
   image: tldp/builder:latest
   directory: /builder
@@ -28,15 +19,25 @@ steps:
     - event: pull_request
       branch: master
   commands:
+  - mkdir -p /builder/BUILD
+  - mkdir -p /builder/PUBDIR
+  - whoami
   - pwd
   - ldptool --dump-cfg
-  - rm -rf /LDP/PR
-  - mkdir -p /LDP/PR/BUILD
-  - rsync -av /LDP/en /LDP/PR
-  - ldptool --loglevel info --builddir /LDP/PR/BUILD --configfile .github/builder.ldptool.cfg --pubdir /LDP/PR/en --list
-  - ionice -c 3 chrt --idle 0 ldptool --loglevel info --builddir /LDP/PR/BUILD --configfile .github/builder.ldptool.cfg --pubdir /LDP/PR/en --publish
-  - git rev-parse HEAD > /LDP/PR/last-commit-id.txt
-  - date > /LDP/PR/build-date.txt
+  - rsync -av /LDP-ro/en /builder/BUILD
+  - ldptool --loglevel info --builddir /builder/BUILD --configfile $GITDIR/.github/builder.ldptool.cfg --pubdir /builder/PUBDIR --list
+  - ionice -c 3 chrt --idle 0 ldptool --loglevel info --builddir /builder/BUILD --configfile $GITDIR/.github/builder.ldptool.cfg --pubdir /builder/PUBDIR --publish
+
+- name: ⇡⇡ Upload artifacts to our S3
+  image: tldp/woodpecker-rclone
+  when:
+    - event: pull_request
+      branch: master
+  settings:
+    rclone_config: 
+      from_secret: RCLONE_RW
+    subcommand: sync
+    commandline: /builder/PUBDIR/ LDP:ldp-pr/${CI_BUILD_NUMBER}
 
 # ADMINS ONLY ACCESS
 
@@ -62,16 +63,16 @@ steps:
   - git rev-parse HEAD > /LDP/last-commit-id.txt
   - date > /LDP/build-date.txt
 
-- name: ⇡⇡ Upload full build to our S3
-  image: tldp/woodpecker-rclone
-  volumes:
-    - /LDP:/LDP
-  when:
-    - event: [ push, pull_request_closed, cron, manual ]
-  settings:
-    rclone_config: 
-      from_secret: RCLONE_RW
-    subcommand: sync
-    commandline: /LDP/ LDP:ldp
+#- name: ⇡⇡ Upload full build to our S3
+#  image: tldp/woodpecker-rclone
+#  volumes:
+#    - /LDP:/LDP
+#  when:
+#    - event: [ push, pull_request_closed, cron, manual ]
+#  settings:
+#    rclone_config: 
+#      from_secret: RCLONE_RW
+#    subcommand: sync
+#    commandline: /LDP/ LDP:ldp
 
 # the happy end.
