@@ -22,6 +22,7 @@ steps:
     - event: pull_request
       branch: master
   commands:
+  - pwd
   - ldptool --dump-cfg
   - rm -rf /LDP/PR
   - mkdir -p /LDP/PR/BUILD
@@ -38,6 +39,7 @@ steps:
   when:
     - event: [ push, pull_request_closed, cron, manual ]
   commands:
+  - pwd
   - ldptool --dump-cfg
   - mkdir -p /builder/src/BUILD
   - mkdir -p /builder/src/PUBDIR
