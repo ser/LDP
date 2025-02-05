@@ -65,7 +65,7 @@ steps:
   - date > /LDP/build-date.txt
 
 - name: ⇡⇡⇡ Upload full build to our S3
-  image: tldp/woodpecker-ldp
+  image: tldp/woodpecker-rclone
   volumes:
     - /LDP:/LDP
   when:
