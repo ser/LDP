@@ -1,6 +1,5 @@
 Builder | State
 :--- | ---:
-Pull Requests  | [![Build Status](https://drone.tldp.org/api/badges/tLDP/LDP/status.svg)](https://drone.tldp.org/tLDP/LDP)
 
 ---
 
