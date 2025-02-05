@@ -26,7 +26,7 @@ steps:
   - whoami
   - pwd
   - ldptool --dump-cfg
-  - rsync -av /LDP-ro/en/ /builder/BUILD
+  - rsync -av /LDP-ro/en/ /builder/PUBDIR
   - ldptool --loglevel info --builddir /builder/BUILD --configfile $GITDIR/.github/builder.ldptool.cfg --pubdir /builder/PUBDIR --list
   - ionice -c 3 chrt --idle 0 ldptool --loglevel info --builddir /builder/BUILD --configfile $GITDIR/.github/builder.ldptool.cfg --pubdir /builder/PUBDIR --publish
 
