@@ -11,7 +11,7 @@ steps:
 #####
 #
 
-- name: ⇣⇣⇣ Download current full build
+- name: ⇣⇣ Download current full build
   image: rclone/rclone
   environment:
     RCLONE_CONF:
@@ -40,7 +40,7 @@ steps:
   - git rev-parse HEAD > /LDP/PR/last-commit-id.txt
   - date > /LDP/PR/build-date.txt
 
-#
+# ADMINS ONLY
 
 - name: 🗃 Martin's builder - all revieved commits (full build)
   image: tldp/builder:latest
@@ -64,7 +64,7 @@ steps:
   - git rev-parse HEAD > /LDP/last-commit-id.txt
   - date > /LDP/build-date.txt
 
-- name: ⇡⇡⇡ Upload full build to our S3
+- name: ⇡⇡ Upload full build to our S3
   image: tldp/woodpecker-rclone
   volumes:
     - /LDP:/LDP
