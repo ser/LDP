@@ -49,7 +49,7 @@ steps:
   - git rev-parse HEAD > /LDP/last-commit-id.txt
   - date > /LDP/build-date.txt
 
-- name: ⇧ Upload full build
+- name: ⇧ Upload full build to our S3
   image: woodpeckerci/plugin-s3
   volumes:
     - /LDP:/LDP
