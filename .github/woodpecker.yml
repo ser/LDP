@@ -9,6 +9,18 @@
 
 steps:
 #####
+#
+- name: ⇣⇣⇣ Download current full build
+  image: rclone/rclone
+  environment:
+    RCLONE:
+      from_secret: RCLONE
+  when:
+    - event: pull_request
+      branch: master
+  commands:
+  - echo "$RCLONE" > rclone.conf
+  - "rclone --config rclone.conf --verbose sync LDP:ldp/en/ /LDP/PR/BUILD"
 
 - name: 🗃 Martin's builder - Pull Request only (partial build)
   image: tldp/builder:latest
@@ -49,7 +61,7 @@ steps:
   - git rev-parse HEAD > /LDP/last-commit-id.txt
   - date > /LDP/build-date.txt
 
-- name: ⇧ Upload full build to our S3
+- name: ⇡⇡⇡ Upload full build to our S3
   image: woodpeckerci/plugin-s3
   volumes:
     - /LDP:/LDP
