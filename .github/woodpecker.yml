@@ -9,7 +9,8 @@
 
 steps:
 #####
-#
+
+# PUBLIC ACCESS VIA PULL REQUESTS
 
 - name: ⇣⇣ Download current full build
   image: rclone/rclone
@@ -40,7 +41,7 @@ steps:
   - git rev-parse HEAD > /LDP/PR/last-commit-id.txt
   - date > /LDP/PR/build-date.txt
 
-# ADMINS ONLY
+# ADMINS ONLY ACCESS
 
 - name: 🗃 Martin's builder - all revieved commits (full build)
   image: tldp/builder:latest
