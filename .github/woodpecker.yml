@@ -51,6 +51,9 @@ steps:
 
 - name: ⇧ Upload full build
   image: rclone/rclone
+  environment:
+    RCLONE:
+      from_secret: RCLONE
   volumes:
     - /LDP:/LDP
   when:
@@ -58,6 +61,5 @@ steps:
   commands:
   - echo "$RCLONE" > rclone.conf
   - "rclone --config rclone.conf --verbose sync /LDP/ LDP:ldp/"
-  secrets: [ RCLONE ]
 
 # the happy end.
