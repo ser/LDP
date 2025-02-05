@@ -45,7 +45,7 @@ steps:
   - whoami
   - pwd
   - ldptool --dump-cfg
-  - ldptool --loglevel info --builddir /builder/src/BUILD --configfile .github/builder.ldptool.cfg --pubdir /builder/src/PUBDIR --list
+  - ldptool --loglevel info --builddir /builder/src/BUILD --configfile /woodpecker/src/github.com/ser/LDP/.github/builder.ldptool.cfg --pubdir /builder/src/PUBDIR --list
   - ionice -c 3 chrt --idle 0 ldptool --loglevel info --builddir /builder/src/BUILD --configfile .github/builder.ldptool.cfg --pubdir /builder/src/PUBDIR --publish
   - rsync -av --delete-after /builder/src/PUBDIR/ /LDP/en
   - git rev-parse HEAD > /LDP/last-commit-id.txt
