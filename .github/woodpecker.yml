@@ -50,16 +50,21 @@ steps:
   - date > /LDP/build-date.txt
 
 - name: ⇧ Upload full build
-  image: rclone/rclone
-  environment:
-    RCLONE:
-      from_secret: RCLONE
+  image: woodpeckerci/plugin-s3
   volumes:
     - /LDP:/LDP
   when:
     - event: [ push, pull_request_closed, cron, manual ]
-  commands:
-  - echo "$RCLONE" > rclone.conf
-  - "rclone --config rclone.conf --verbose sync /LDP/ LDP:ldp/"
+  settings:
+    bucket: ldp
+    endpoint: https://tldp.net
+    access_key: GK381f3710fdb80f3ae2689d07
+    secret_key:
+      from_secret: S3
+    region: US
+    acl: public-read
+    strip_prefix: true
+    source: /LDP/**/*
+    target: /
 
 # the happy end.
