@@ -13,7 +13,7 @@ steps:
 # PUBLIC ACCESS VIA PULL REQUESTS
 
 - name: 🗃 Martin's builder - Pull Request only (partial build)
-  image: tldp/builder:latest
+  image: ghcr.io/tldp/docker-builder:trunk
   environment:
     GITDIR: /woodpecker/src/github.com/ser/LDP
   when:
@@ -28,9 +28,11 @@ steps:
   - rsync -av /LDP-ro/en/ /woodpecker/PUBDIR
   - ldptool --loglevel info --builddir /woodpecker/BUILD --configfile $GITDIR/.github/builder.ldptool.cfg --pubdir /woodpecker/PUBDIR --list
   - ionice -c 3 chrt --idle 0 ldptool --loglevel info --builddir /woodpecker/BUILD --configfile $GITDIR/.github/builder.ldptool.cfg --pubdir /woodpecker/PUBDIR --publish
+  - cd /woodpecker/PUBDIR 
+  - python3 directory-indexer-single-level.py
 
 - name: ⇡⇡ Upload artifacts to our S3
-  image: tldp/woodpecker-rclone
+  image: ghcr.io/tldp/woodpecker-rclone:main
   when:
     - event: pull_request
       branch: master
@@ -48,19 +50,23 @@ steps:
   settings:
     api_key:
       from_secret: GITHUB_PR
-    message: "CI run completed successfully: {CI_PIPELINE_URL}"
+    message: |
+      CI run completed successfully: ${CI_PIPELINE_URL}
+      Test rendering is available on: https://ldp-pr.tldp.org/${CI_PIPELINE_NUMBER}/
+      Please verify test rendering carefully before accepting this Pull Request!
     update: true
 
 # ADMINS ONLY ACCESS
 
 - name: 🗃 Martin's builder - all revieved commits (full build)
-  image: tldp/builder:latest
+  image: ghcr.io/tldp/docker-builder:trunk
   environment:
     GITDIR: /woodpecker/src/github.com/ser/LDP
   volumes:
     - /LDP:/LDP
   when:
-    - event: [ push, pull_request_closed, cron, manual ]
+    #- event: [ push, pull_request_closed, cron, manual ]
+    - event: [ push, cron, manual ]
   commands:
   - mkdir -p /woodpecker/BUILD
   - mkdir -p /woodpecker/PUBDIR
