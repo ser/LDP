@@ -42,6 +42,9 @@ steps:
 
 - name: ☭ Comment the PR with links to S3
   image: quay.io/thegeeklab/wp-github-comment
+  when:
+    - event: pull_request
+      branch: master
   settings:
     api_key:
       from_secret: GITHUB_PR
