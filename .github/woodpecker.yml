@@ -64,8 +64,7 @@ steps:
   volumes:
     - /LDP:/LDP
   when:
-    #- event: [ push, pull_request_closed, cron, manual ]
-    - event: [ push, cron, manual ]
+    - event: [ push, pull_request_closed, cron, manual ]
   commands:
   - mkdir -p /woodpecker/BUILD
   - mkdir -p /woodpecker/PUBDIR
