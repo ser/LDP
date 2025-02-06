@@ -37,8 +37,16 @@ steps:
   settings:
     rclone_config: 
       from_secret: RCLONE_RW
-    subcommand: sync
-    commandline: /woodpecker/PUBDIR/ LDP:ldp-pr/${CI_BUILD_NUMBER}
+    subcommand: --copy-links sync 
+    commandline: /woodpecker/PUBDIR/ LDP:ldp-pr/${CI_PIPELINE_NUMBER}
+
+- name: ☭ Comment the PR with links to S3
+  image: quay.io/thegeeklab/wp-github-comment
+  settings:
+    api_key:
+      from_secret: GITHUB_PR
+    message: "CI run completed successfully: {CI_PIPELINE_URL}"
+    update: true
 
 # ADMINS ONLY ACCESS
 
