@@ -2,20 +2,17 @@
 # (C) Dr Serge Victor 2020-2025, GPLv3 License
 # (C) The Linux Documentation Project 2020-2025, GPLv3 License
 # 
-# recently build version of documents is available on permanent storage disk mounted on /LDP
+# Recently build version of documents is available on permanent storage disk mounted read-only on /LDP-ro
 #
-# this file is protected, DO NOT TAMPER without permission from LDP authorised maintainers!
-# contact us or create an issue before thinking about any changes.
+# Contact us or create an issue before thinking about any changes!
 
 steps:
 #####
 
-# PUBLIC ACCESS VIA PULL REQUESTS
+### PUBLIC ACCESS VIA PULL REQUESTS ###
 
 - name: 🗃 Martin's builder - Pull Request only (partial build)
   image: ghcr.io/tldp/docker-builder:trunk
-  environment:
-    GITDIR: /woodpecker/src/github.com/ser/LDP
   when:
     - event: pull_request
       branch: master
@@ -26,10 +23,17 @@ steps:
   - pwd
   - ldptool --dump-cfg
   - rsync -av /LDP-ro/en/ /woodpecker/PUBDIR
-  - ldptool --loglevel info --builddir /woodpecker/BUILD --configfile $GITDIR/.github/builder.ldptool.cfg --pubdir /woodpecker/PUBDIR --list
-  - ionice -c 3 chrt --idle 0 ldptool --loglevel info --builddir /woodpecker/BUILD --configfile $GITDIR/.github/builder.ldptool.cfg --pubdir /woodpecker/PUBDIR --publish
+  - ldptool --loglevel info --builddir /woodpecker/BUILD --configfile ${CI_WORKSPACE}/.github/builder.ldptool.cfg --pubdir /woodpecker/PUBDIR --list
+  - ionice -c 3 chrt --idle 0 ldptool --loglevel info --builddir /woodpecker/BUILD --configfile ${CI_WORKSPACE}/.github/builder.ldptool.cfg --pubdir /woodpecker/PUBDIR --publish
+  - cd ${CI_WORKSPACE}
+  - git rev-parse HEAD > /woodpecker/PUBDIR/last-commit-id.txt
   - cd /woodpecker/PUBDIR 
   - python3 /bin/directory-indexer-single-level.py
+  - date > build-date.txt
+  - echo ${CI_PIPELINE_URL} > builder-uri.txt
+  - echo ${CI_PIPELINE_NUMBER} > builder-pipeline-number.txt
+  - echo ${CI_PIPELINE_PARENT} > builder-pipeline-parent.txt
+  - echo ${CI_PIPELINE_FORGE_URL} > builder-forge-uri.txt
 
 - name: ⇡⇡ Upload artifacts to our S3
   image: ghcr.io/tldp/woodpecker-rclone:main
@@ -55,12 +59,11 @@ steps:
       Please verify test rendering carefully before accepting this Pull Request!
     update: true
 
-# ADMINS ONLY ACCESS
+### ADMINS ONLY ACCESS - BUILD TO PRODUCTION ###
 
+# main builder
 - name: 🗃 Martin's builder - all revieved commits (full build)
   image: ghcr.io/tldp/docker-builder:trunk
-  environment:
-    GITDIR: /woodpecker/src/github.com/ser/LDP
   volumes:
     - /LDP:/LDP
   when:
@@ -71,24 +74,29 @@ steps:
   - whoami
   - pwd
   - ldptool --dump-cfg
-  - ldptool --loglevel info --builddir /woodpecker/BUILD --configfile $GITDIR/.github/builder.ldptool.cfg --pubdir /woodpecker/PUBDIR --list
-  - ionice -c 3 chrt --idle 0 ldptool --loglevel info --builddir /woodpecker/BUILD --configfile $GITDIR/.github/builder.ldptool.cfg --pubdir /woodpecker/PUBDIR --publish
+  - ldptool --loglevel info --builddir /woodpecker/BUILD --configfile ${CI_WORKSPACE}/.github/builder.ldptool.cfg --pubdir /woodpecker/PUBDIR --list
+  - ionice -c 3 chrt --idle 0 ldptool --loglevel info --builddir /woodpecker/BUILD --configfile ${CI_WORKSPACE}/.github/builder.ldptool.cfg --pubdir /woodpecker/PUBDIR --publish
   - ionice -c 3 chrt --idle 0 rsync -av --delete-after /woodpecker/PUBDIR/ /LDP/en
-  - cd $GITDIR
+  - cd ${CI_WORKSPACE}
   - git rev-parse HEAD > /LDP/last-commit-id.txt
-  - date > /LDP/build-date.txt
+  - cd /LDP
+  - date > build-date.txt
+  - echo ${CI_PIPELINE_URL} > builder-uri.txt
+  - echo ${CI_PIPELINE_NUMBER} > builder-pipeline-number.txt
+  - echo ${CI_PIPELINE_PARENT} > builder-pipeline-parent.txt
+  - echo ${CI_PIPELINE_FORGE_URL} > builder-forge-uri.txt
 
-#- name: ⇡⇡ Upload full build to our S3
-#  image: tldp/woodpecker-rclone
-#  volumes:
-#    - /LDP:/LDP
-#  when:
-#    - event: [ push, pull_request_closed, cron, manual ]
-#  settings:
-#    rclone_config: 
-#      from_secret: RCLONE_RW
-#    subcommand: sync
-#    commandline: /LDP/ LDP:ldp
+# we want to have always actual copy of files in our S3 
+- name: ⇡⇡ Upload full build to our S3
+  image: tldp/woodpecker-rclone
+  volumes:
+    - /LDP:/LDP
+  when:
+    - event: [ push, pull_request_closed, cron, manual ]
+  settings:
+    rclone_config: 
+      from_secret: RCLONE_RW
+    commandline: --verbose --copy-links sync /LDP/ LDP:ldp
 
 ###############
 # the happy end.
