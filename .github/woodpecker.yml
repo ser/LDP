@@ -88,7 +88,7 @@ steps:
 
 # we want to have always actual copy of files in our S3 
 - name: ⇡⇡ Upload full build to our S3
-  image: tldp/woodpecker-rclone
+  image: ghcr.io/tldp/woodpecker-rclone:main
   volumes:
     - /LDP:/LDP
   when:
