@@ -1,5 +1,4 @@
 [![status-badge](https://builder-github.tldp.org/api/badges/3/status.svg)](https://builder-github.tldp.org/repos/3)
-
 ---
 
 ![LDP Logo](https://tldp.org/images/ldp.gif)
