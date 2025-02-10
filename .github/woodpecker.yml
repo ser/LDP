@@ -23,17 +23,17 @@ steps:
   - pwd
   - ldptool --dump-cfg
   - rsync -av /LDP-ro/en/ /woodpecker/PUBDIR
-  - ldptool --loglevel info --builddir /woodpecker/BUILD --configfile "${CI_WORKSPACE}"/.github/builder.ldptool.cfg --pubdir /woodpecker/PUBDIR --list
-  - ionice -c 3 chrt --idle 0 ldptool --loglevel info --builddir /woodpecker/BUILD --configfile "${CI_WORKSPACE}"/.github/builder.ldptool.cfg --pubdir /woodpecker/PUBDIR --publish
-  - cd ${CI_WORKSPACE}
+  - ldptool --loglevel info --builddir /woodpecker/BUILD --configfile $CI_WORKSPACE/.github/builder.ldptool.cfg --pubdir /woodpecker/PUBDIR --list
+  - ionice -c 3 chrt --idle 0 ldptool --loglevel info --builddir /woodpecker/BUILD --configfile $CI_WORKSPACE/.github/builder.ldptool.cfg --pubdir /woodpecker/PUBDIR --publish
+  - cd $CI_WORKSPACE
   - git rev-parse HEAD > /woodpecker/PUBDIR/last-commit-id.txt
   - cd /woodpecker/PUBDIR 
   - python3 /bin/directory-indexer-single-level.py
   - date > build-date.txt
-  - echo ${CI_PIPELINE_URL} > builder-uri.txt
-  - echo ${CI_PIPELINE_NUMBER} > builder-pipeline-number.txt
-  - echo ${CI_PIPELINE_PARENT} > builder-pipeline-parent.txt
-  - echo ${CI_PIPELINE_FORGE_URL} > builder-forge-uri.txt
+  - echo $CI_PIPELINE_URL > builder-uri.txt
+  - echo $CI_PIPELINE_NUMBER > builder-pipeline-number.txt
+  - echo $CI_PIPELINE_PARENT > builder-pipeline-parent.txt
+  - echo $CI_PIPELINE_FORGE_URL > builder-forge-uri.txt
 
 - name: ⇡⇡ Upload artifacts to our S3
   image: ghcr.io/tldp/woodpecker-rclone:main
@@ -77,14 +77,14 @@ steps:
   - ldptool --loglevel info --builddir /woodpecker/BUILD --configfile $CI_WORKSPACE/.github/builder.ldptool.cfg --pubdir /woodpecker/PUBDIR --list
   - ionice -c 3 chrt --idle 0 ldptool --loglevel info --builddir /woodpecker/BUILD --configfile $CI_WORKSPACE/.github/builder.ldptool.cfg --pubdir /woodpecker/PUBDIR --publish
   - ionice -c 3 chrt --idle 0 rsync -av --delete-after /woodpecker/PUBDIR/ /LDP/en
-  - cd ${CI_WORKSPACE}
+  - cd $CI_WORKSPACE
   - git rev-parse HEAD > /LDP/last-commit-id.txt
   - cd /LDP
   - date > build-date.txt
-  - echo ${CI_PIPELINE_URL} > builder-uri.txt
-  - echo ${CI_PIPELINE_NUMBER} > builder-pipeline-number.txt
-  - echo ${CI_PIPELINE_PARENT} > builder-pipeline-parent.txt
-  - echo ${CI_PIPELINE_FORGE_URL} > builder-forge-uri.txt
+  - echo $CI_PIPELINE_URL > builder-uri.txt
+  - echo $CI_PIPELINE_NUMBER > builder-pipeline-number.txt
+  - echo $CI_PIPELINE_PARENT > builder-pipeline-parent.txt
+  - echo $CI_PIPELINE_FORGE_URL > builder-forge-uri.txt
 
 # we want to have always actual copy of files in our S3 
 - name: ⇡⇡ Upload full build to our S3
