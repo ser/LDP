@@ -67,7 +67,7 @@ steps:
   volumes:
     - /LDP:/LDP
   when:
-    - event: [ cron, manual, push, pull_request_closed, release, tag ]
+    - event: [ cron, manual, push, release, tag ]
   commands:
   - mkdir -p /woodpecker/BUILD
   - mkdir -p /woodpecker/PUBDIR
@@ -92,7 +92,7 @@ steps:
   volumes:
     - /LDP:/LDP
   when:
-    - event: [ push, pull_request_closed, cron, manual, tag, release ]
+    - event: [ cron, manual, push, release, tag ]
   settings:
     rclone_config: 
       from_secret: RCLONE_RW
